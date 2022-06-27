@@ -7,7 +7,7 @@ import com.example.EJ2.Persona.Infraestructure.dto.Outputs.PersonaOutSimpleDTO;
 import java.util.List;
 
 public interface PersonaService {
-        public PersonaInputDTO addPersona(PersonaInputDTO persona) throws Exception;
+        public PersonaOutSimpleDTO addPersona(PersonaInputDTO persona) throws Exception;
 
         public Object getByID(int ID) throws Exception;
 

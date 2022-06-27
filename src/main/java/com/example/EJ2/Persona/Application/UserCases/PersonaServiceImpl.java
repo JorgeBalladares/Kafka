@@ -5,10 +5,9 @@ import com.example.EJ2.Exception.Customizer.UnprocesableException;
 import com.example.EJ2.Persona.Application.Services.PersonaService;
 import com.example.EJ2.Persona.Domain.Entities.Persona;
 import com.example.EJ2.Persona.Domain.repositories.PersonaRepository;
-import com.example.EJ2.Persona.Infraestructure.dto.Outputs.PersonProfDTOOut;
-import com.example.EJ2.Persona.Infraestructure.dto.Outputs.PersonStudODTOOut;
 import com.example.EJ2.Persona.Infraestructure.dto.Inputs.PersonaInputDTO;
 import com.example.EJ2.Persona.Infraestructure.dto.Outputs.PersonaOutSimpleDTO;
+import com.example.EJ2.stringgenerator.StringPrefixedSequenceIdGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,11 +22,10 @@ public class PersonaServiceImpl implements PersonaService {
     private PersonaRepository personaRepositorio;
     @Autowired
     private ModelMapper modelMapper;
-
     List<Persona> listaPerson;
 
 
-    public PersonaInputDTO addPersona(PersonaInputDTO persona) throws Exception {
+    public PersonaOutSimpleDTO addPersona(PersonaInputDTO persona) throws Exception {
         Persona p = modelMapper.map(persona, Persona.class);
         if (persona.getUsuario() == null || persona.getPassword() == null || persona.getName() == null || persona.getCompany_email() == null
                 || persona.getPersonal_email() == null || persona.getCity() == null ||
@@ -36,8 +34,12 @@ public class PersonaServiceImpl implements PersonaService {
         }
         if (persona.getUsuario().length() > 10) {
             throw new UnprocesableException("Valores no válidos");
-        } else personaRepositorio.save(p);
-        return modelMapper.map(p, PersonaInputDTO.class);
+        } else  {
+
+            personaRepositorio.save(p);
+
+        }
+        return modelMapper.map(p, PersonaOutSimpleDTO.class);
     }
 
 
@@ -45,15 +47,9 @@ public class PersonaServiceImpl implements PersonaService {
         Optional<Persona> person = personaRepositorio.findById(id);
         Persona p = modelMapper.map(person, Persona.class);
         if (person.isPresent()) {
-            if (p.getProfesor() == null && p.getStudent() == null) {
-                return modelMapper.map(person, PersonaInputDTO.class);
-            } else {
-                if (p.getStudent() != null) {
-                    return modelMapper.map(person, PersonStudODTOOut.class);
-                }
-            }
+           return modelMapper.map(person, PersonaOutSimpleDTO.class);
         }
-        return modelMapper.map(person, PersonProfDTOOut.class);
+        return null;
     }
 
 
@@ -98,14 +94,5 @@ public class PersonaServiceImpl implements PersonaService {
         personaRepositorio.deleteById(id);
     }
 
-    public void CheckRoll(Persona person) throws Exception {
-        if (person.getProfesor() != null) {
-            throw new Exception("Persona asignada a un profesor");
-        } else if (person.getStudent() != null) {
-            throw new Exception("Persona asignada a un estudiante");
-        } else {
-            System.out.println("añadidos");
-        }
-    }
 
 }
